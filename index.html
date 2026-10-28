@@ -1,0 +1,678 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Academic Scheduler</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+header {
+    background: linear-gradient(135deg, #312e81, #6366f1);
+    color: white;
+    padding: 25px 35px;
+}
+
+header h1 {
+    font-size: 27px;
+    margin-bottom: 8px;
+}
+
+header p {
+    color: #e0e7ff;
+}
+
+.container {
+    max-width: 1400px;
+    margin: auto;
+    padding: 25px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: white;
+    padding: 22px;
+    border-radius: 14px;
+    box-shadow: 0 3px 12px #0000000c;
+    border-left: 5px solid #6366f1;
+}
+
+.stat-card h2 {
+    color: #4f46e5;
+    font-size: 29px;
+    margin-bottom: 8px;
+}
+
+.stat-card p {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.panel {
+    background: white;
+    padding: 24px;
+    border-radius: 14px;
+    margin-bottom: 25px;
+    box-shadow: 0 3px 12px #0000000c;
+}
+
+.panel h2 {
+    margin-bottom: 18px;
+    font-size: 21px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+}
+
+button {
+    border: none;
+    border-radius: 8px;
+    padding: 12px 18px;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 4px 3px 4px 0;
+    transition: 0.2s;
+}
+
+button:hover {
+    opacity: 0.86;
+    transform: translateY(-1px);
+}
+
+.primary {
+    background: #4f46e5;
+    color: white;
+}
+
+.secondary {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.success {
+    background: #059669;
+    color: white;
+}
+
+.danger {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 900px;
+}
+
+th, td {
+    border: 1px solid #e2e8f0;
+    padding: 13px 10px;
+    text-align: center;
+    font-size: 13px;
+}
+
+th {
+    background: #312e81;
+    color: white;
+}
+
+.day {
+    font-weight: bold;
+    background: #eef2ff;
+}
+
+.lesson {
+    background: #e0e7ff;
+    border-radius: 6px;
+    padding: 8px;
+    color: #312e81;
+    font-weight: bold;
+    line-height: 1.7;
+}
+
+.lesson small {
+    font-weight: normal;
+    color: #475569;
+}
+
+.free {
+    color: #94a3b8;
+}
+
+.message {
+    padding: 14px;
+    border-radius: 8px;
+    margin-top: 15px;
+    display: none;
+    line-height: 1.5;
+}
+
+#status {
+    background: #dcfce7;
+    color: #166534;
+}
+
+#warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.subject-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+}
+
+.subject-item {
+    padding: 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+}
+
+.subject-item strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.subject-item span {
+    color: #64748b;
+    font-size: 13px;
+}
+
+footer {
+    text-align: center;
+    padding: 22px;
+    background: #1e1b4b;
+    color: white;
+    margin-top: 20px;
+}
+
+@media(max-width: 600px) {
+    header { padding: 22px 18px; }
+    header h1 { font-size: 22px; }
+    .container { padding: 14px; }
+    .panel { padding: 16px; }
+}
+
+@media print {
+    header, .no-print, footer, .stats, #subjectsPanel {
+        display: none !important;
+    }
+    body { background: white; }
+    .container { padding: 0; }
+    .panel { box-shadow: none; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🎓 AI-Based Academic Scheduler</h1>
+    <p>Smart timetable generation using constraint-based scheduling</p>
+</header>
+
+<div class="container">
+
+    <div class="stats">
+        <div class="stat-card">
+            <h2 id="totalSubjects">6</h2>
+            <p>Total Subjects</p>
+        </div>
+
+        <div class="stat-card">
+            <h2>5</h2>
+            <p>Working Days</p>
+        </div>
+
+        <div class="stat-card">
+            <h2>30</h2>
+            <p>Weekly Lecture Slots</p>
+        </div>
+
+        <div class="stat-card">
+            <h2 id="scheduledCount">0</h2>
+            <p>Scheduled Lectures</p>
+        </div>
+    </div>
+
+    <section class="panel no-print">
+        <h2>⚙️ Timetable Configuration</h2>
+
+        <div class="form-grid">
+            <div>
+                <label for="className">Class / Division</label>
+                <input id="className" value="First Year AI & DS">
+            </div>
+
+            <div>
+                <label for="semester">Semester</label>
+                <select id="semester">
+                    <option>Semester 1</option>
+                    <option>Semester 2</option>
+                    <option>Semester 3</option>
+                    <option>Semester 4</option>
+                    <option>Semester 5</option>
+                    <option>Semester 6</option>
+                    <option>Semester 7</option>
+                    <option>Semester 8</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="lectures">Lectures per subject per week</label>
+                <select id="lectures">
+                    <option value="3">3 lectures</option>
+                    <option value="4">4 lectures</option>
+                    <option value="5" selected>5 lectures</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="primary" onclick="generateTimetable()">
+            ✨ Generate Timetable
+        </button>
+
+        <button class="secondary" onclick="clearTimetable()">
+            Clear Timetable
+        </button>
+
+        <button class="success" onclick="downloadCSV()">
+            ⬇ Download CSV
+        </button>
+
+        <button class="secondary" onclick="window.print()">
+            🖨 Print Timetable
+        </button>
+
+        <div id="status" class="message"></div>
+        <div id="warning" class="message"></div>
+    </section>
+
+    <section class="panel">
+        <h2>📅 Weekly Academic Timetable</h2>
+        <p id="classHeading" style="margin-bottom:18px;color:#64748b">
+            First Year AI & DS — Semester 1
+        </p>
+
+        <div class="table-wrap">
+            <table id="timetable">
+                <thead>
+                    <tr>
+                        <th>Day / Time</th>
+                        <th>09:00–10:00</th>
+                        <th>10:00–11:00</th>
+                        <th>11:15–12:15</th>
+                        <th>12:15–01:15</th>
+                        <th>02:00–03:00</th>
+                        <th>03:00–04:00</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel" id="subjectsPanel">
+        <h2>📚 Subjects and Faculty</h2>
+
+        <div class="subject-list" id="subjectList"></div>
+
+        <p style="color:#64748b;font-size:13px;margin-top:16px">
+            Sample data is provided below. Edit the subject and teacher
+            names in the JavaScript section to match your college.
+        </p>
+    </section>
+
+</div>
+
+<footer>
+    <p>AI-Based Automated Academic Scheduling System</p>
+    <p style="margin-top:7px;font-size:12px">
+        Constraint-based timetable generator
+    </p>
+</footer>
+
+<script>
+const days = [
+    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"
+];
+
+const slots = [
+    "09:00–10:00",
+    "10:00–11:00",
+    "11:15–12:15",
+    "12:15–01:15",
+    "02:00–03:00",
+    "03:00–04:00"
+];
+
+const subjects = [
+    { name: "Python", teacher: "Teacher A" },
+    { name: "Mathematics", teacher: "Teacher B" },
+    { name: "Database", teacher: "Teacher C" },
+    { name: "Statistics", teacher: "Teacher D" },
+    { name: "Artificial Intelligence", teacher: "Teacher A" },
+    { name: "Computer Networks", teacher: "Teacher E" }
+];
+
+let timetable = [];
+let generated = false;
+
+function showMessage(id, message) {
+    const element = document.getElementById(id);
+    element.textContent = message;
+    element.style.display = "block";
+}
+
+function hideMessage(id) {
+    document.getElementById(id).style.display = "none";
+}
+
+function renderSubjects() {
+    document.getElementById("totalSubjects").textContent =
+        subjects.length;
+
+    document.getElementById("subjectList").innerHTML =
+        subjects.map(subject => `
+            <div class="subject-item">
+                <strong>${subject.name}</strong>
+                <span>${subject.teacher}</span>
+            </div>
+        `).join("");
+}
+
+function renderEmptyTable() {
+    const tbody = document.getElementById("tableBody");
+
+    tbody.innerHTML = days.map(day => `
+        <tr>
+            <td class="day">${day}</td>
+            ${slots.map(() =>
+                '<td class="free">Not scheduled</td>'
+            ).join("")}
+        </tr>
+    `).join("");
+
+    document.getElementById("scheduledCount").textContent = "0";
+}
+
+function clearTimetable() {
+    timetable = [];
+    generated = false;
+    renderEmptyTable();
+    hideMessage("status");
+    hideMessage("warning");
+}
+
+function generateTimetable() {
+    hideMessage("status");
+    hideMessage("warning");
+
+    const lecturesPerSubject =
+        Number(document.getElementById("lectures").value);
+
+    const totalNeeded = subjects.length * lecturesPerSubject;
+    const totalSlots = days.length * slots.length;
+
+    if (totalNeeded > totalSlots) {
+        showMessage(
+            "warning",
+            "Not enough weekly slots for the selected lecture count."
+        );
+        return;
+    }
+
+    /*
+      Backtracking with constraints:
+      1. One lecture per class in each time slot.
+      2. A teacher cannot teach two classes at the same time.
+      3. Each subject receives the required number of lectures.
+    */
+
+    const assignments = [];
+    const teacherBusy = new Set();
+    const subjectCounts = subjects.map(() => 0);
+
+    // Spread lectures across the week by preferring
+    // subjects with the fewest current assignments.
+    function solve(position) {
+        if (position === totalNeeded) {
+            return true;
+        }
+
+        const dayIndex = Math.floor(position / slots.length);
+        const slotIndex = position % slots.length;
+
+        const candidates = subjects
+            .map((subject, index) => ({
+                subject,
+                index,
+                remaining:
+                    lecturesPerSubject - subjectCounts[index]
+            }))
+            .filter(item => item.remaining > 0)
+            .sort((a, b) => {
+                const scoreA =
+                    a.remaining / lecturesPerSubject +
+                    Math.random() * 0.15;
+                const scoreB =
+                    b.remaining / lecturesPerSubject +
+                    Math.random() * 0.15;
+                return scoreB - scoreA;
+            });
+
+        for (const item of candidates) {
+            const teacherKey =
+                item.subject.teacher + "-" + dayIndex + "-" + slotIndex;
+
+            if (teacherBusy.has(teacherKey)) {
+                continue;
+            }
+
+            // Avoid assigning the same subject in consecutive slots.
+            if (
+                slotIndex > 0 &&
+                assignments[position - 1] &&
+                assignments[position - 1].subjectIndex === item.index
+            ) {
+                continue;
+            }
+
+            assignments[position] = {
+                subjectIndex: item.index,
+                dayIndex,
+                slotIndex
+            };
+
+            subjectCounts[item.index]++;
+            teacherBusy.add(teacherKey);
+
+            if (solve(position + 1)) {
+                return true;
+            }
+
+            subjectCounts[item.index]--;
+            teacherBusy.delete(teacherKey);
+            assignments[position] = null;
+        }
+
+        // Empty periods are allowed when constraints require them.
+        // Continue searching only if all subjects are already assigned.
+        if (totalNeeded < totalSlots) {
+            assignments[position] = null;
+            if (solve(position + 1)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Use a shuffled ordering of the day-slot positions.
+    // This search fills positions sequentially.
+    const success = solve(0);
+
+    if (!success) {
+        showMessage(
+            "warning",
+            "A timetable could not be generated with these constraints. " +
+            "Try fewer lectures per subject."
+        );
+        return;
+    }
+
+    timetable = Array.from(
+        { length: days.length },
+        () => Array(slots.length).fill(null)
+    );
+
+    assignments.forEach(assignment => {
+        if (assignment) {
+            timetable[assignment.dayIndex][assignment.slotIndex] =
+                subjects[assignment.subjectIndex];
+        }
+    });
+
+    generated = true;
+    renderTimetable();
+
+    document.getElementById("classHeading").textContent =
+        document.getElementById("className").value +
+        " — " + document.getElementById("semester").value;
+
+    showMessage(
+        "status",
+        "Timetable generated successfully! Teacher time-slot conflicts " +
+        "are prevented, and each subject has the requested number of lectures."
+    );
+}
+
+function renderTimetable() {
+    const tbody = document.getElementById("tableBody");
+    let count = 0;
+
+    tbody.innerHTML = days.map((day, dayIndex) => `
+        <tr>
+            <td class="day">${day}</td>
+            ${slots.map((slot, slotIndex) => {
+                const subject = timetable[dayIndex][slotIndex];
+
+                if (!subject) {
+                    return '<td class="free">Free</td>';
+                }
+
+                count++;
+
+                return `
+                    <td>
+                        <div class="lesson">
+                            ${subject.name}<br>
+                            <small>${subject.teacher}</small>
+                        </div>
+                    </td>
+                `;
+            }).join("")}
+        </tr>
+    `).join("");
+
+    document.getElementById("scheduledCount").textContent = count;
+}
+
+function downloadCSV() {
+    if (!generated) {
+        showMessage(
+            "warning",
+            "Please generate a timetable before downloading."
+        );
+        return;
+    }
+
+    const rows = [
+        ["Day", ...slots]
+    ];
+
+    days.forEach((day, dayIndex) => {
+        rows.push([
+            day,
+            ...slots.map((slot, slotIndex) => {
+                const subject = timetable[dayIndex][slotIndex];
+
+                return subject
+                    ? subject.name + " (" + subject.teacher + ")"
+                    : "Free";
+            })
+        ]);
+    });
+
+    const csv = rows.map(row =>
+        row.map(value =>
+            '"' + String(value).replace(/"/g, '""') + '"'
+        ).join(",")
+    ).join("\r\n");
+
+    const blob = new Blob(
+        ["\uFEFF" + csv],
+        { type: "text/csv;charset=utf-8;" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "academic_timetable.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+}
+
+renderSubjects();
+renderEmptyTable();
+</script>
+
+</body>
+</html>
